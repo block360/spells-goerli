@@ -30,35 +30,22 @@ contract DssSpellCollateralAction {
     // A table of rates can be found at
     // https://ipfs.io/ipfs/QmVp4mhhbwWGTfbh2BzwQB9eiBrQBKiqcPRZCaAxNUaar6
     //
+    // uint256 internal constant ONE_FIVE_PCT_RATE = 1000000000472114805215157978;
 
     // --- Math ---
-    // uint256 constant THOUSAND   = 10 ** 3;
-    // uint256 constant MILLION    = 10 ** 6;
-    // uint256 constant BILLION    = 10 ** 9;
-
-    // --- DEPLOYED COLLATERAL ADDRESSES ---
-    // address constant XXX                  = 0x0000000000000000000000000000000000000000;
-    // address constant PIP_XXX              = 0x0000000000000000000000000000000000000000;
-    // address constant MCD_JOIN_XXX_A       = 0x0000000000000000000000000000000000000000;
-    // address constant MCD_CLIP_XXX_A       = 0x0000000000000000000000000000000000000000;
-    // address constant MCD_CLIP_CALC_XXX_A  = 0x0000000000000000000000000000000000000000;
-
-    // --- Offboarding: Current Liquidation Ratio ---
-    // uint256 constant CURRENT_XXX_A_MAT              =  XYZ * RAY / 100;
-
-    // --- Offboarding: Target Liquidation Ratio ---
-    // uint256 constant TARGET_XXX_A_MAT               =  XYZ * RAY / 100;
+    // uint256 internal constant MILLION  = 10 ** 6;
+    // uint256 internal constant THOUSAND = 10 ** 3;
 
     function collateralAction() internal {
-        //onboardCollaterals();
-        //updateCollaterals();
-        //offboardCollaterals();
+        onboardCollaterals();
+        updateCollaterals();
+        offboardCollaterals();
     }
 
     function onboardCollaterals() internal {
         // ----------------------------- Collateral onboarding -----------------------------
-        //  Add ______________ as a new Vault Type
-        //  Poll Link:
+        // Add ______________ as a new Vault Type
+        // Poll Link:
 
         // DssExecLib.addNewCollateral(
         //     CollateralOpts({
@@ -107,9 +94,22 @@ contract DssSpellCollateralAction {
         // DssExecLib.setChangelogAddress("MCD_CLIP_CALC_XXX_A", MCD_CLIP_CALC_XXX_A);
     }
 
+    function updateCollaterals() internal {
+        // ------------------------------- Collateral updates -------------------------------
+
+        // Enable autoline for XXX-A
+        // Poll Link:
+        // Forum Link:
+        // DssExecLib.setIlkAutoLineParameters(
+        //    XXX-A,
+        //    AMOUNT,
+        //    GAP,
+        //    TTL
+        // );
+    }
+
     function offboardCollaterals() internal {
         // ----------------------------- Collateral offboarding -----------------------------
-
         // 1st Stage of Collateral Offboarding Process
         // Poll Link:
         // uint256 line;
@@ -166,20 +166,5 @@ contract DssSpellCollateralAction {
         //     _end:       TARGET_XXX_A_MAT,
         //     _duration:  30 days
         // });
-
-    }
-
-    function updateCollaterals() internal {
-        // ------------------------------- Collateral updates -------------------------------
-
-        // Enable autoline for XXX-A
-        // Poll Link:
-        // Forum Link:
-        // DssExecLib.setIlkAutoLineParameters(
-        //    XXX-A,
-        //    AMOUNT,
-        //    GAP,
-        //    TTL
-        // );
     }
 }

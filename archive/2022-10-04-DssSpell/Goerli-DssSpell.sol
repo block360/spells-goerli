@@ -23,14 +23,18 @@ import "dss-exec-lib/DssAction.sol";
 
 import { DssSpellCollateralAction } from "./Goerli-DssSpellCollateral.sol";
 
+interface GemLike {
+    function approve(address, uint256) external returns (bool);
+}
+
+interface RwaUrnLike {
+    function lock(uint256) external;
+}
+
 contract DssSpellAction is DssAction, DssSpellCollateralAction {
+
     // Provides a descriptive tag for bot consumption
     string public constant override description = "Goerli Spell";
-
-    // Turn office hours off
-    function officeHours() public override returns (bool) {
-        return false;
-    }
 
     // Many of the settings that change weekly rely on the rate accumulator
     // described at https://docs.makerdao.com/smart-contract-modules/rates-module
@@ -42,17 +46,20 @@ contract DssSpellAction is DssAction, DssSpellCollateralAction {
     //    https://ipfs.io/ipfs/QmVp4mhhbwWGTfbh2BzwQB9eiBrQBKiqcPRZCaAxNUaar6
     //
 
-    // --- Rates ---
-    // uint256 constant THREE_PCT_RATE          = 1000000000937303470807876289;
-
-    // --- Math ---
-    // uint256 constant MILLION = 10**6;
+    function officeHours() public override returns (bool) {
+        return false;
+    }
 
     function actions() public override {
         // ---------------------------------------------------------------------
         // Includes changes from the DssSpellCollateralAction
-        // onboardCollaterals();
-        // offboardCollaterals();
+        onboardNewCollaterals();
+
+        // lock RWA007 Token in the URN
+        GemLike(RWA007).approve(RWA007_A_URN, 1 * WAD);
+        RwaUrnLike(RWA007_A_URN).lock(1 * WAD);
+        
+        DssExecLib.setChangelogVersion("1.14.2");
     }
 }
 

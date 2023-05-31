@@ -27,8 +27,6 @@ contract ConfigStarknet {
         uint256 dai_bridge_isOpen;
         uint256 dai_bridge_ceiling;
         uint256 dai_bridge_maxDeposit;
-        uint256 l2_dai_bridge;
-        uint256 l2_gov_relay;
     }
 
     function setValues() public {
@@ -36,9 +34,7 @@ contract ConfigStarknet {
             core_implementation:       0x60C5fA1763cC9CB9c7c25458C6cDDFbc8F125256,
             dai_bridge_isOpen:         1,        // 1 open, 0 closed
             dai_bridge_ceiling:        200_000,  // Whole Dai Units
-            dai_bridge_maxDeposit:     1000,     // Whole Dai Units
-            l2_dai_bridge:             0x057b7fe4e59d295de5e7955c373023514ede5b972e872e9aa5dcdf563f5cfacb,
-            l2_gov_relay:              0x00275e3f018f7884f449a1fb418b6b1de77e01c74a9fefaed1599cb22322ff74
+            dai_bridge_maxDeposit:     1000      // Whole Dai Units
         });
     }
 }
@@ -62,13 +58,11 @@ interface StarknetDaiBridgeLike {
     function dai() external returns (address);
     function starkNet() external returns (address);
     function escrow() external returns (address);
-    function l2DaiBridge() external returns (uint256);
 }
 
 interface StarknetGovRelayLike {
     function wards(address) external returns (uint256);
     function starkNet() external returns (address);
-    function l2GovernanceRelay() external returns (uint256);
 }
 
 interface StarknetCoreLike {
@@ -130,8 +124,6 @@ contract StarknetTests is GoerliDssSpellTestBase, ConfigStarknet {
 
         assertEq(daiBridge.wards(addr.addr("MCD_PAUSE_PROXY")), 1, "StarknetTest/pause-proxy-not-ward-on-dai-bridge");
         assertEq(daiBridge.wards(addr.addr("MCD_ESM")),         1, "StarknetTest/esm-not-ward-on-dai-bridge");
-
-        assertEq(daiBridge.l2DaiBridge(), starknetValues.l2_dai_bridge, "StarknetTest/wrong-l2-dai-bridge-on-dai-bridge");
     }
 
     function checkStarknetGovRelay() public {
@@ -141,7 +133,6 @@ contract StarknetTests is GoerliDssSpellTestBase, ConfigStarknet {
         assertEq(govRelay.wards(addr.addr("MCD_ESM")),         1, "StarknetTest/esm-not-ward-on-gov-relay");
 
         assertEq(govRelay.starkNet(), addr.addr("STARKNET_CORE"), "StarknetTest/unexpected-starknet-core-on-gov-relay");
-        assertEq(govRelay.l2GovernanceRelay(), starknetValues.l2_gov_relay, "StarknetTest/unexpected-l2-gov-relay-on-gov-relay");
     }
 
     function checkStarknetCore() public {

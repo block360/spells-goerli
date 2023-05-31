@@ -128,25 +128,15 @@ interface TeleportBridgeLike {
     function l1Escrow() external view returns (address);
     function l1TeleportRouter() external view returns (address);
     function l1Token() external view returns (address);
+    function l2TeleportGateway() external view returns (address);
 }
 
 interface OptimismTeleportBridgeLike is TeleportBridgeLike {
-    function l2TeleportGateway() external view returns (address);
     function messenger() external view returns (address);
 }
 
 interface ArbitrumTeleportBridgeLike is TeleportBridgeLike {
-    function l2TeleportGateway() external view returns (address);
     function inbox() external view returns (address);
-}
-
-interface StarknetTeleportBridgeLike {
-    function l2TeleportGateway() external view returns (uint256);
-    function starkNet() external view returns (address);
-}
-
-interface RwaLiquidationLike {
-    function ilks(bytes32) external view returns (string memory, address, uint48, uint48);
 }
 
 contract GoerliDssSpellTestBase is Config, DSTest, DSMath {
@@ -157,34 +147,32 @@ contract GoerliDssSpellTestBase is Config, DSTest, DSMath {
     Deployers deployers = new Deployers();
 
     // ADDRESSES
-    ChainlogAbstract            chainLog = ChainlogAbstract(   addr.addr("CHANGELOG"));
-    DSPauseAbstract                pause = DSPauseAbstract(    addr.addr("MCD_PAUSE"));
-    address                   pauseProxy =                     addr.addr("MCD_PAUSE_PROXY");
-    DSChiefAbstract                chief = DSChiefAbstract(    addr.addr("MCD_ADM"));
-    VatAbstract                      vat = VatAbstract(        addr.addr("MCD_VAT"));
-    VowAbstract                      vow = VowAbstract(        addr.addr("MCD_VOW"));
-    CatAbstract                      cat = CatAbstract(        addr.addr("MCD_CAT"));
-    DogAbstract                      dog = DogAbstract(        addr.addr("MCD_DOG"));
-    PotAbstract                      pot = PotAbstract(        addr.addr("MCD_POT"));
-    JugAbstract                      jug = JugAbstract(        addr.addr("MCD_JUG"));
-    SpotAbstract                 spotter = SpotAbstract(       addr.addr("MCD_SPOT"));
-    DaiAbstract                      dai = DaiAbstract(        addr.addr("MCD_DAI"));
-    DaiJoinAbstract              daiJoin = DaiJoinAbstract(    addr.addr("MCD_JOIN_DAI"));
-    DSTokenAbstract                  gov = DSTokenAbstract(    addr.addr("MCD_GOV"));
-    EndAbstract                      end = EndAbstract(        addr.addr("MCD_END"));
-    ESMAbstract                      esm = ESMAbstract(        addr.addr("MCD_ESM"));
-    CureLike                        cure = CureLike(           addr.addr("MCD_CURE"));
-    IlkRegistryAbstract              reg = IlkRegistryAbstract(addr.addr("ILK_REGISTRY"));
-    FlapLike                        flap = FlapLike(           addr.addr("MCD_FLAP"));
+    ChainlogAbstract    chainLog = ChainlogAbstract(   addr.addr("CHANGELOG"));
+    DSPauseAbstract        pause = DSPauseAbstract(    addr.addr("MCD_PAUSE"));
+    address           pauseProxy =                     addr.addr("MCD_PAUSE_PROXY");
+    DSChiefAbstract        chief = DSChiefAbstract(    addr.addr("MCD_ADM"));
+    VatAbstract              vat = VatAbstract(        addr.addr("MCD_VAT"));
+    VowAbstract              vow = VowAbstract(        addr.addr("MCD_VOW"));
+    CatAbstract              cat = CatAbstract(        addr.addr("MCD_CAT"));
+    DogAbstract              dog = DogAbstract(        addr.addr("MCD_DOG"));
+    PotAbstract              pot = PotAbstract(        addr.addr("MCD_POT"));
+    JugAbstract              jug = JugAbstract(        addr.addr("MCD_JUG"));
+    SpotAbstract         spotter = SpotAbstract(       addr.addr("MCD_SPOT"));
+    DaiAbstract              dai = DaiAbstract(        addr.addr("MCD_DAI"));
+    DaiJoinAbstract      daiJoin = DaiJoinAbstract(    addr.addr("MCD_JOIN_DAI"));
+    DSTokenAbstract          gov = DSTokenAbstract(    addr.addr("MCD_GOV"));
+    EndAbstract              end = EndAbstract(        addr.addr("MCD_END"));
+    ESMAbstract              esm = ESMAbstract(        addr.addr("MCD_ESM"));
+    CureLike                cure = CureLike(           addr.addr("MCD_CURE"));
+    IlkRegistryAbstract      reg = IlkRegistryAbstract(addr.addr("ILK_REGISTRY"));
+    FlapLike                flap = FlapLike(           addr.addr("MCD_FLAP"));
 
-    OsmMomAbstract                osmMom = OsmMomAbstract(     addr.addr("OSM_MOM"));
-    FlipperMomAbstract           flipMom = FlipperMomAbstract( addr.addr("FLIPPER_MOM"));
-    ClipperMomAbstract           clipMom = ClipperMomAbstract( addr.addr("CLIPPER_MOM"));
-    DssAutoLineAbstract         autoLine = DssAutoLineAbstract(addr.addr("MCD_IAM_AUTO_LINE"));
-    LerpFactoryAbstract      lerpFactory = LerpFactoryAbstract(addr.addr("LERP_FAB"));
-    VestAbstract                 vestDai = VestAbstract(       addr.addr("MCD_VEST_DAI"));
-    RwaLiquidationLike liquidationOracle = RwaLiquidationLike( addr.addr("MIP21_LIQUIDATION_ORACLE"));
-
+    OsmMomAbstract           osmMom = OsmMomAbstract(     addr.addr("OSM_MOM"));
+    FlipperMomAbstract      flipMom = FlipperMomAbstract( addr.addr("FLIPPER_MOM"));
+    ClipperMomAbstract      clipMom = ClipperMomAbstract( addr.addr("CLIPPER_MOM"));
+    DssAutoLineAbstract    autoLine = DssAutoLineAbstract(addr.addr("MCD_IAM_AUTO_LINE"));
+    LerpFactoryAbstract lerpFactory = LerpFactoryAbstract(addr.addr("LERP_FAB"));
+    VestAbstract            vestDai = VestAbstract(       addr.addr("MCD_VEST_DAI"));
 
     DssSpell spell;
 
@@ -549,7 +537,7 @@ contract GoerliDssSpellTestBase is Config, DSTest, DSMath {
             }
             uint256 normalizedTestDust = values.collaterals[ilk].dust * RAD;
             assertEq(dust, normalizedTestDust, concat("TestError/vat-dust-", ilk));
-            assertTrue((dust >= RAD && dust <= 100 * THOUSAND * RAD) || dust == 0, concat("TestError/vat-dust-range-", ilk)); // eq 0 or gt eq 1 and lte 100k
+            assertTrue((dust >= RAD && dust < 100 * THOUSAND * RAD) || dust == 0, concat("TestError/vat-dust-range-", ilk)); // eq 0 or gt eq 1 and lt 100k
             }
 
             {
@@ -635,10 +623,10 @@ contract GoerliDssSpellTestBase is Config, DSTest, DSMath {
                 assertEq(uint256(clip.buf()), normalizedTestBuf, concat("TestError/clip-buf-", ilk));
                 assertTrue(clip.buf() >= RAY && clip.buf() <= 2 * RAY, concat("TestError/clip-buf-range-", ilk)); // gte 0% and lte 100%
                 assertEq(uint256(clip.tail()), values.collaterals[ilk].clip_tail, concat("TestError/clip-tail-", ilk));
-                if (ilk == "TUSD-A") { // long tail liquidation
-                    assertTrue(clip.tail() >= 1200 && clip.tail() <= 30 days, concat("TestError/TUSD-clip-tail-range-", ilk)); // gt eq 20 minutes and lte 30 days
+                if (ilk == "TUSD-A") {
+                    assertTrue(clip.tail() >= 1200 && clip.tail() < 30 days, concat("TestError/TUSD-clip-tail-range-", ilk)); // gt eq 20 minutes and lt 10 hours
                 } else {
-                    assertTrue(clip.tail() >= 1200 && clip.tail() <= 12 hours, concat("TestError/clip-tail-range-", ilk)); // gt eq 20 minutes and lte 12 hours
+                    assertTrue(clip.tail() >= 1200 && clip.tail() < 10 hours, concat("TestError/clip-tail-range-", ilk)); // gt eq 20 minutes and lt 10 hours
                 }
                 uint256 normalizedTestCusp = (values.collaterals[ilk].clip_cusp)  * 10**23;
                 assertEq(uint256(clip.cusp()), normalizedTestCusp, concat("TestError/clip-cusp-", ilk));
@@ -728,56 +716,27 @@ contract GoerliDssSpellTestBase is Config, DSTest, DSMath {
         // Edge case - balance is already set for some reason
         if (GemAbstract(token).balanceOf(address(this)) == amount) return;
 
-        // Scan the storage for the balance storage slot
         for (uint256 i = 0; i < 200; i++) {
-            // Solidity-style storage layout for maps
-            {
-                bytes32 prevValue = hevm.load(
-                    address(token),
-                    keccak256(abi.encode(address(this), uint256(i)))
-                );
-
+            // Scan the storage for the balance storage slot
+            bytes32 prevValue = hevm.load(
+                address(token),
+                keccak256(abi.encode(address(this), uint256(i)))
+            );
+            hevm.store(
+                address(token),
+                keccak256(abi.encode(address(this), uint256(i))),
+                bytes32(amount)
+            );
+            if (GemAbstract(token).balanceOf(address(this)) == amount) {
+                // Found it
+                return;
+            } else {
+                // Keep going after restoring the original value
                 hevm.store(
                     address(token),
                     keccak256(abi.encode(address(this), uint256(i))),
-                    bytes32(amount)
+                    prevValue
                 );
-                if (GemAbstract(token).balanceOf(address(this)) == amount) {
-                    // Found it
-                    return;
-                } else {
-                    // Keep going after restoring the original value
-                    hevm.store(
-                        address(token),
-                        keccak256(abi.encode(address(this), uint256(i))),
-                        prevValue
-                    );
-                }
-            }
-
-            // Vyper-style storage layout for maps
-            {
-                bytes32 prevValue = hevm.load(
-                    address(token),
-                    keccak256(abi.encode(uint256(i), address(this)))
-                );
-
-                hevm.store(
-                    address(token),
-                    keccak256(abi.encode(uint256(i), address(this))),
-                    bytes32(amount)
-                );
-                if (GemAbstract(token).balanceOf(address(this)) == amount) {
-                    // Found it
-                    return;
-                } else {
-                    // Keep going after restoring the original value
-                    hevm.store(
-                        address(token),
-                        keccak256(abi.encode(uint256(i), address(this))),
-                        prevValue
-                    );
-                }
             }
         }
 
@@ -857,7 +816,7 @@ contract GoerliDssSpellTestBase is Config, DSTest, DSMath {
 
         (,,,, uint256 dust) = vat.ilks(_ilk);
         dust /= RAY;
-        uint256 amount = 4 * dust * 10 ** uint256(token.decimals()) / (_isOSM ? getOSMPrice(pip) : uint256(DSValueAbstract(pip).read()));
+        uint256 amount = 2 * dust * 10 ** uint256(token.decimals()) / (_isOSM ? getOSMPrice(pip) : uint256(DSValueAbstract(pip).read()));
         uint256 amount18 = token.decimals() == 18 ? amount : amount * 10**(18 - uint256(token.decimals()));
         giveTokens(address(token), amount);
 
@@ -934,126 +893,6 @@ contract GoerliDssSpellTestBase is Config, DSTest, DSMath {
         // Dump all dai for next run
         vat.move(address(this), address(0x0), vat.dai(address(this)));
     }
-
-    function checkIlkClipper(
-        bytes32 ilk,
-        GemJoinAbstract join,
-        ClipAbstract clipper,
-        address calc,
-        OsmAbstract pip,
-        uint256 ilkAmt
-    ) internal {
-
-        // Contracts set
-        assertEq(dog.vat(), address(vat));
-        assertEq(dog.vow(), address(vow));
-        {
-        (address clip,,,) = dog.ilks(ilk);
-        assertEq(clip, address(clipper));
-        }
-        assertEq(clipper.ilk(), ilk);
-        assertEq(clipper.vat(), address(vat));
-        assertEq(clipper.vow(), address(vow));
-        assertEq(clipper.dog(), address(dog));
-        assertEq(clipper.spotter(), address(spotter));
-        assertEq(clipper.calc(), calc);
-
-        // Authorization
-        assertEq(vat.wards(address(clipper))    , 1);
-        assertEq(dog.wards(address(clipper))    , 1);
-        assertEq(clipper.wards(address(dog))    , 1);
-        assertEq(clipper.wards(address(end))    , 1);
-        assertEq(clipper.wards(address(clipMom)), 1);
-        assertEq(clipper.wards(address(esm)), 1);
-
-        try pip.bud(address(spotter)) returns (uint256 bud) {
-            assertEq(bud, 1);
-        } catch {}
-        try pip.bud(address(clipper)) returns (uint256 bud) {
-            assertEq(bud, 1);
-        } catch {}
-        try pip.bud(address(clipMom)) returns (uint256 bud) {
-            assertEq(bud, 1);
-        } catch {}
-        try pip.bud(address(end)) returns (uint256 bud) {
-            assertEq(bud, 1);
-        } catch {}
-
-        // Force max Hole
-        hevm.store(
-            address(dog),
-            bytes32(uint256(4)),
-            bytes32(uint256(-1))
-        );
-
-        // ----------------------- Check Clipper works and bids can be made -----------------------
-
-        {
-        GemAbstract token = GemAbstract(join.gem());
-        uint256 tknAmt =  ilkAmt / 10 ** (18 - join.dec());
-        giveTokens(address(token), tknAmt);
-        assertEq(token.balanceOf(address(this)), tknAmt);
-
-        // Join to adapter
-        assertEq(vat.gem(ilk, address(this)), 0);
-        assertEq(token.allowance(address(this), address(join)), 0);
-        token.approve(address(join), tknAmt);
-        join.join(address(this), tknAmt);
-        assertEq(token.balanceOf(address(this)), 0);
-        assertEq(vat.gem(ilk, address(this)), ilkAmt);
-        }
-
-        {
-        // Generate new DAI to force a liquidation
-        uint256 rate;
-        int256 art;
-        uint256 spot;
-        uint256 line;
-        (,rate, spot, line,) = vat.ilks(ilk);
-        art = int256(mul(ilkAmt, spot) / rate);
-
-        // dart max amount of DAI
-        setIlkLine(ilk, uint256(-1));
-        vat.frob(ilk, address(this), address(this), address(this), int256(ilkAmt), art);
-        setIlkLine(ilk, line);
-        setIlkMat(ilk, 100000 * RAY);
-        hevm.warp(block.timestamp + 10 days);
-        spotter.poke(ilk);
-        assertEq(clipper.kicks(), 0);
-        dog.bark(ilk, address(this), address(this));
-        assertEq(clipper.kicks(), 1);
-
-        (, rate,,,) = vat.ilks(ilk);
-        uint256 debt = mul(mul(rate, uint256(art)), dog.chop(ilk)) / WAD;
-        hevm.store(
-            address(vat),
-            keccak256(abi.encode(address(this), uint256(5))),
-            bytes32(debt)
-        );
-        assertEq(vat.dai(address(this)), debt);
-        assertEq(vat.gem(ilk, address(this)), 0);
-
-        hevm.warp(block.timestamp + 20 minutes);
-        (, uint256 tab, uint256 lot, address usr,, uint256 top) = clipper.sales(1);
-
-        assertEq(usr, address(this));
-        assertEq(tab, debt);
-        assertEq(lot, ilkAmt);
-        assertTrue(mul(lot, top) > tab); // There is enough collateral to cover the debt at current price
-
-        vat.hope(address(clipper));
-        clipper.take(1, lot, top, address(this), bytes(""));
-        }
-
-        {
-        (, uint256 tab, uint256 lot, address usr,,) = clipper.sales(1);
-        assertEq(usr, address(0));
-        assertEq(tab, 0);
-        assertEq(lot, 0);
-        assertEq(vat.dai(address(this)), 0);
-        assertEq(vat.gem(ilk, address(this)), ilkAmt); // What was purchased + returned back as it is the owner of the vault
-        }
-     }
 
     function checkUNILPIntegration(
         bytes32 _ilk,
@@ -1296,7 +1135,7 @@ contract GoerliDssSpellTestBase is Config, DSTest, DSMath {
     ) internal {
         TeleportJoinLike join = TeleportJoinLike(addr.addr("MCD_JOIN_TELEPORT_FW_A"));
         TeleportRouterLike router = TeleportRouterLike(addr.addr("MCD_ROUTER_TELEPORT_FW_A"));
-
+        
         // Sanity checks
         assertEq(join.line(sourceDomain), line);
         assertEq(join.fees(sourceDomain), address(fee));
@@ -1385,21 +1224,19 @@ contract GoerliDssSpellTestBase is Config, DSTest, DSMath {
         uint256 _start,
         uint256 _cliff,
         uint256 _end,
-        uint256 _days,
         address _manager,
         uint256 _restricted,
         uint256 _reward,
         uint256 _claimed
-    ) public {
-        assertEq(vestDai.usr(_index), _wallet,            "usr");
-        assertEq(vestDai.bgn(_index), _start,             "bgn");
-        assertEq(vestDai.clf(_index), _cliff,             "clf");
-        assertEq(vestDai.fin(_index), _end,               "fin");
-        assertEq(vestDai.fin(_index), _start + _days - 1, "fin");
-        assertEq(vestDai.mgr(_index), _manager,           "mgr");
-        assertEq(vestDai.res(_index), _restricted,        "res");
-        assertEq(vestDai.tot(_index), _reward,            "tot");
-        assertEq(vestDai.rxd(_index), _claimed,           "rxd");
+        ) public {
+        assertEq(vestDai.usr(_index), _wallet,     "usr");
+        assertEq(vestDai.bgn(_index), _start,      "bgn");
+        assertEq(vestDai.clf(_index), _cliff,      "clf");
+        assertEq(vestDai.fin(_index), _end,        "fin");
+        assertEq(vestDai.mgr(_index), _manager,    "mgr");
+        assertEq(vestDai.res(_index), _restricted, "res");
+        assertEq(vestDai.tot(_index), _reward,     "tot");
+        assertEq(vestDai.rxd(_index), _claimed,    "rxd");
     }
 
     function getIlkMat(bytes32 _ilk) internal view returns (uint256 mat) {
@@ -1503,16 +1340,14 @@ contract GoerliDssSpellTestBase is Config, DSTest, DSMath {
     }
 
 
+    // ONLY ON GOERLI
     function skipWards(address target, address deployer) internal view returns (bool ok) {
         ok = (
             target   == address(chainLog)      &&
             deployer == deployers.PE_CURRENT()
         ) ||
         (
-            deployer == deployers.ORACLES_1()
-        ) ||
-        (
-            deployer == deployers.ORACLES_2()
+            deployer == deployers.ORACLES()
         );
     }
 
@@ -1566,22 +1401,5 @@ contract GoerliDssSpellTestBase is Config, DSTest, DSMath {
 
     function checkChainlogVersion(string memory key) internal {
         assertEq(chainLog.version(), key, concat("TestError/Chainlog-version-mismatch-", key));
-    }
-
-    function checkRWADocUpdate(bytes32 ilk, string memory currentDoc, string memory newDoc) internal {
-        (string memory doc, address pip, uint48 tau, uint48 toc) = liquidationOracle.ilks(ilk);
-
-        assertEq(doc, currentDoc, concat("TestError/bad-old-document-for-", ilk));
-
-        vote(address(spell));
-        scheduleWaitAndCast(address(spell));
-        assertTrue(spell.done());
-
-        (string memory docNew, address pipNew, uint48 tauNew, uint48 tocNew) = liquidationOracle.ilks(ilk);
-
-        assertEq(docNew, newDoc,  concat("TestError/bad-new-document-for-", ilk));
-        assertEq(pip, pipNew,     concat("TestError/pip-is-not-the-same-for-", ilk));
-        assertTrue(tau == tauNew, concat("TestError/tau-is-not-the-same-for-", ilk));
-        assertTrue(toc == tocNew, concat("TestError/toc-is-not-the-same-for", ilk));
     }
 }

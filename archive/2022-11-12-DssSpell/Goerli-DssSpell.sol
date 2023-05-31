@@ -43,16 +43,12 @@ contract DssSpellAction is DssAction, DssSpellCollateralAction {
     //
 
     // --- Rates ---
-    // uint256 constant THREE_PCT_RATE          = 1000000000937303470807876289;
 
     // --- Math ---
-    // uint256 constant MILLION = 10**6;
 
     function actions() public override {
-        // ---------------------------------------------------------------------
         // Includes changes from the DssSpellCollateralAction
-        // onboardCollaterals();
-        // offboardCollaterals();
+        collateralAction();
     }
 }
 
